@@ -41,7 +41,7 @@ public class AddClient {
     WebElement clientCity;
 
     public void setClientCity(String city) {
-        clientAdd1.sendKeys(city);
+        clientCity.sendKeys(city);
     }
 
 
