@@ -3,6 +3,8 @@ package DbTesting;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -12,8 +14,10 @@ import pages.Menu;
 
 import java.io.IOException;
 import java.sql.*;
+import java.text.ParseException;
 import java.util.ArrayList;
 
+import static Util.Conversion.*;
 import static utilities.ConfigReader.*;
 import static utilities.DataProvider.getMyData;
 
@@ -21,7 +25,7 @@ public class AddClientDataProviderTest {
     WebDriver driver;
     @BeforeClass
     public void doLogin() throws IOException {
-        driver = new ChromeDriver();
+        driver = new FirefoxDriver();
         driver.manage().window().maximize();
         driver.get(getUrl());
 
@@ -38,12 +42,12 @@ public class AddClientDataProviderTest {
                               String state,String zip,String country,
                               String gender,String birthDate,String phone,
                               String fax,String mobile,String email,
-                              String web,String tax,String vat) throws ClassNotFoundException, SQLException {
+                              String web,String tax,String vat) throws ClassNotFoundException, SQLException, ParseException {
 
         ArrayList<String> expected = new ArrayList<>();
         expected.add(name);
         expected.add(surname);
-        expected.add(language);
+        expected.add(language.toLowerCase());
         expected.add(address1);
         expected.add(address2);
         expected.add(city);
@@ -117,9 +121,19 @@ public class AddClientDataProviderTest {
             actual.add(rs.getString("client_city"));
             actual.add(rs.getString("client_state"));
             actual.add(rs.getString("client_zip"));
-            actual.add(rs.getString("client_country"));
-            actual.add(rs.getString("client_gender"));
-            actual.add(rs.getString("client_birthdate"));
+
+            actual.add(convertCountry(rs.getString("client_country")));
+
+
+
+            actual.add(getGender(rs.getString("client_gender")));
+
+           String convertedDate =  convertDate(rs.getString("client_birthdate"));
+
+            actual.add(convertedDate); // MM/dd/yyyy
+
+
+
             actual.add(rs.getString("client_phone"));
             actual.add(rs.getString("client_fax"));
             actual.add(rs.getString("client_mobile"));
@@ -132,6 +146,7 @@ public class AddClientDataProviderTest {
         System.out.println("expected="+expected);
         System.out.println("actual="+actual);
 
+        Assert.assertEquals(actual,expected,"Some field are not matching");
 
     }
 
